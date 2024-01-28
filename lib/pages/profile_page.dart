@@ -9,6 +9,7 @@ import 'patientInfoForm.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:desnet/services/smartcontract/storageContract.dart';
+import 'package:web3dart/web3dart.dart';
 
 class PatientProfilePage extends StatefulWidget {
   const PatientProfilePage({
@@ -28,36 +29,35 @@ class UserFile {
 
   UserFile({required this.ipfsHash, this.fileType});
 }
+
 final List<String> namespaceAccounts = [];
 
 class _PatientProfilePageState extends State<PatientProfilePage> {
   Map<String, SessionData> _activeSessions = {};
   SessionData? _sessionData;
-  String _account = '';
-  final List<ChainMetadata> chains = ChainData.testChains;
-  String _sdf = '';
-  final String userMetamaskAddress = "0x218164Ba1BdDBABB4867EbFd8e29e9c7642a5621";
+  String userMetamaskAddress = '';
   List<UserFile> allFiles = [];
 
   @override
   void initState() {
     _activeSessions = widget.web3App.getActiveSessions();
     _sessionData = _activeSessions[_activeSessions.keys.toList().first];
-    _account = NamespaceUtils.getAccount(
-        _activeSessions[_sessionData.topic]!.namespaces.values.accounts
-    );
-    fetchCID();    // Call the getAllFiles function when the screen initializes
+    userMetamaskAddress = NamespaceUtils.getAccount(
+        _sessionData!.namespaces.values.first.accounts.first);
+    userMetamaskAddress == null
+        ? fetchCID(userMetamaskAddress)
+        : null; // Call the fetchCID function when the screen initializes if having session with metamask
     super.initState();
   }
 
-  Future<void> fetchCID() async {
+  Future<void> fetchCID(String address) async {
     try {
       StorageContract storageContract = StorageContract(
-        _account,
+        EthereumAddress.fromHex('0xDB5332457aed22aB904212c2B8b40C18e6937440'),
         "http://10.0.2.2:8545",
       );
       List<UserFile> result =
-      await storageContract.callContractFunction(userMetamaskAddress, "getAll");
+          await storageContract.callContractFunction(address, "getAll");
 
       // Extract IPFS hashes from the result
       List<String> ipfsHashes = result.map((file) => file.ipfsHash).toList();
@@ -82,15 +82,14 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 
     for (String cid in ipfsCids) {
       final response =
-      await http.get(Uri.parse('http://10.0.2.2:8081/ipfs/$cid'));
+          await http.get(Uri.parse('http://10.0.2.2:8081/ipfs/$cid'));
 
       if (response.statusCode == 200) {
         String fileType = determineFileType(response.headers['content-type']);
         fileTypes.add(fileType);
       } else {
         print(
-            'Failed to fetch file for CID $cid. Status code: ${response
-                .statusCode}');
+            'Failed to fetch file for CID $cid. Status code: ${response.statusCode}');
       }
     }
     return fileTypes;
@@ -112,17 +111,16 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<SessionData> sessions = _activeSessions.values.toList();
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Patient Profile'),
-          actions: [
+        actions: [
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
               // Trigger the loadFiles method when the refresh button is pressed
-              fetchCID();
+              print('address: $userMetamaskAddress');
+              fetchCID(userMetamaskAddress);
             },
           ),
         ],
@@ -133,8 +131,8 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
           ElevatedButton(
             onPressed: () {
               // Filter the list here
-              List<UserFile> filteredFiles = allFiles.where((file) =>
-              file.fileType == 'PDF').toList();
+              List<UserFile> filteredFiles =
+                  allFiles.where((file) => file.fileType == 'PDF').toList();
               // Navigate to the new page with the filtered list
               Navigator.push(
                 context,
@@ -146,11 +144,10 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
             },
             child: Text('View PDFs'),
           ),
-
           ElevatedButton(
             onPressed: () {
-              List<UserFile> filteredFiles = allFiles.where((file) =>
-              file.fileType == 'JSON').toList();
+              List<UserFile> filteredFiles =
+                  allFiles.where((file) => file.fileType == 'JSON').toList();
               // Navigate to the new page with the filtered list
               Navigator.push(
                 context,
@@ -195,22 +192,20 @@ class FilesListPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          PdfViewerPage(
-                            pdfUrl:
-                            'http://gateway.pinata.cloud/ipfs/${fileInfo.ipfsHash}',//'http://10.0.2.2:8081/ipfs/${fileInfo.ipfsHash}',
-                          ),
+                      builder: (context) => PdfViewerPage(
+                        pdfUrl:
+                            'http://gateway.pinata.cloud/ipfs/${fileInfo.ipfsHash}', //'http://10.0.2.2:8081/ipfs/${fileInfo.ipfsHash}',
+                      ),
                     ),
                   );
                 } else if (fileType == 'JSON') {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          PatientInfoPage(
-                            jsonUrl:
+                      builder: (context) => PatientInfoPage(
+                        jsonUrl:
                             'http://gateway.pinata.cloud/ipfs/${fileInfo.ipfsHash}',
-                          ),
+                      ),
                     ),
                   );
                 }

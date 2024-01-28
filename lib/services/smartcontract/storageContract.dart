@@ -9,21 +9,23 @@ class StorageContract {
   late EthereumAddress contractAddress;
   late Web3Client ethClient;
   late String abiFile;
+  String blockchainUrl = '';
 
-  StorageContract(String contractAddress, String blockchainUrl) {
+  StorageContract(EthereumAddress contractaddress, String blockchainurl) {
+    contractAddress = contractaddress;
+    blockchainUrl = blockchainurl;
     _initialize(contractAddress, blockchainUrl);
   }
 
-  Future<void> _initialize(String contractAddress, String blockchainUrl) async {
+  Future<void> _initialize(EthereumAddress contractAddress, String blockchainUrl) async {
     await getContract(contractAddress, blockchainUrl);
   }
 
-  Future<void> getContract(String contractAddress, String blockchainUrl) async {
+  Future<void> getContract(EthereumAddress contractAddress, String blockchainUrl) async {
     try {
-      this.contractAddress = EthereumAddress.fromHex(contractAddress);
-      this.ethClient = Web3Client(blockchainUrl, http.Client());
-      this.abiFile = await rootBundle.loadString("assets/json/Storage.json");
-      this.contract = DeployedContract(
+      ethClient = Web3Client(blockchainUrl, http.Client());
+      abiFile = await rootBundle.loadString("assets/json/Storage.json");
+      contract = DeployedContract(
         ContractAbi.fromJson(jsonEncode(jsonDecode(abiFile)["abi"]), 'Storage'),
         this.contractAddress,
       );
@@ -31,10 +33,13 @@ class StorageContract {
       print('Error initializing contract: $e');
     }
   }
-  
-  Future<List<UserFile>> callContractFunction(String _metamaskAddress, String functionName) async {
+
+  Future<List<UserFile>> callContractFunction(String address, String functionName) async {
     try {
-      final EthereumAddress sender = EthereumAddress.fromHex(_metamaskAddress);
+      print('Contract Address: $contractAddress');
+      await _initialize(contractAddress, blockchainUrl);
+
+      final EthereumAddress sender = EthereumAddress.fromHex(address);
       final result = await ethClient.call(
         sender: sender,
         contract: contract,
