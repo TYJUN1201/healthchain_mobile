@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:walletconnect_flutter_v2/apis/sign_api/models/session_models.dart';
+import 'package:walletconnect_flutter_v2/apis/utils/namespace_utils.dart';
+import 'package:walletconnect_flutter_v2/apis/web3app/web3app.dart';
+import '../models/chain_metadata.dart';
+import '../utils/crypto/chain_data.dart';
 import 'pdfViewerPage.dart';
 import 'patientInfoForm.dart';
 import 'dart:convert';
@@ -6,7 +11,12 @@ import 'package:http/http.dart' as http;
 import 'package:desnet/services/smartcontract/storageContract.dart';
 
 class PatientProfilePage extends StatefulWidget {
-  const PatientProfilePage({Key? key}) : super(key: key);
+  const PatientProfilePage({
+    super.key,
+    required this.web3App,
+  });
+
+  final Web3App web3App;
 
   @override
   _PatientProfilePageState createState() => _PatientProfilePageState();
@@ -18,25 +28,35 @@ class UserFile {
 
   UserFile({required this.ipfsHash, this.fileType});
 }
+final List<String> namespaceAccounts = [];
 
 class _PatientProfilePageState extends State<PatientProfilePage> {
-  StorageContract storageContract = StorageContract(
-    "0xDB5332457aed22aB904212c2B8b40C18e6937440",
-    "http://10.0.2.2:8545",
-  );
+  Map<String, SessionData> _activeSessions = {};
+  String _selectedSession = '';
+  String _account = '';
+  final List<ChainMetadata> chains = ChainData.testChains;
 
   final String userMetamaskAddress = "0x218164Ba1BdDBABB4867EbFd8e29e9c7642a5621";
   List<UserFile> allFiles = [];
 
   @override
   void initState() {
+    _activeSessions = widget.web3App.getActiveSessions();
+    _selectedSession = sessions[index].topic;
+    _sessionData = _activeSessions[_selectedSession]!;
+    _account = NamespaceUtils.getAccount(
+      _activeSessions.namespaces.values.first.accounts.first,
+    );
+    fetchCID();    // Call the getAllFiles function when the screen initializes
     super.initState();
-    // Call the getAllFiles function when the screen initializes
-    fetchCID();
   }
 
   Future<void> fetchCID() async {
     try {
+      StorageContract storageContract = StorageContract(
+        _account,
+        "http://10.0.2.2:8545",
+      );
       List<UserFile> result =
       await storageContract.callContractFunction(userMetamaskAddress, "getAll");
 
@@ -93,10 +113,12 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<SessionData> sessions = _activeSessions.values.toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Patient Profile'),
-          actions: [
+        actions: [
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {

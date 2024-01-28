@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:desnet/screen/patientProfilePage.dart';
+import 'package:desnet/pages/profile_page.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
