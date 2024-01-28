@@ -31,6 +31,6 @@ List<String> getChainMethods(ChainType value) {
   return EIP155.methods.values.toList();
 }
 
-List<String> getChainEvents(ChainType value) {
-  return EIP155.events.values.toList();
-}
+// List<String> getChainEvents(ChainType value) {
+//   return EIP155.events.values.toList();
+// }

@@ -169,13 +169,13 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     // Loop through all the chain data
-    for (final ChainMetadata chain in ChainData.allChains) {
-      // Loop through the events for that chain
-      for (final event in getChainEvents(chain.type)) {
-        debugPrint('registerEventHandler $event for chain ${chain.chainId}');
-        _web3App!.registerEventHandler(chainId: chain.chainId, event: event);
-      }
-    }
+    // for (final ChainMetadata chain in ChainData.allChains) {
+    //   // Loop through the events for that chain
+    //   for (final event in getChainEvents(chain.type)) {
+    //     debugPrint('registerEventHandler $event for chain ${chain.chainId}');
+    //     _web3App!.registerEventHandler(chainId: chain.chainId, event: event);
+    //   }
+    // }
 
     // Register event handlers
     _web3App!.onSessionPing.subscribe(_onSessionPing);

@@ -127,20 +127,20 @@ class SessionWidgetState extends State<SessionWidget> {
       ),
     );
 
-    children.addAll([
-      const SizedBox(
-        height: StyleConstants.linear8,
-      ),
-      const Text(
-        StringConstants.events,
-        style: StyleConstants.subtitleText,
-      ),
-    ]);
-    children.addAll(
-      _buildChainEventsTiles(
-        chainMetadata,
-      ),
-    );
+    // children.addAll([
+    //   const SizedBox(
+    //     height: StyleConstants.linear8,
+    //   ),
+    //   const Text(
+    //     StringConstants.events,
+    //     style: StyleConstants.subtitleText,
+    //   ),
+    // ]);
+    // children.addAll(
+    //   _buildChainEventsTiles(
+    //     chainMetadata,
+    //   ),
+    // );
 
     // final ChainMetadata
     return Container(
@@ -224,40 +224,40 @@ class SessionWidgetState extends State<SessionWidget> {
     return buttons;
   }
 
-  List<Widget> _buildChainEventsTiles(ChainMetadata chainMetadata) {
-    final List<Widget> values = [];
-    // Add Methods
-    for (final String event in getChainEvents(chainMetadata.type)) {
-      values.add(
-        Container(
-          width: double.infinity,
-          height: StyleConstants.linear48,
-          margin: const EdgeInsets.symmetric(
-            vertical: StyleConstants.linear8,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: chainMetadata.color,
-            ),
-            borderRadius: const BorderRadius.all(
-              Radius.circular(
-                StyleConstants.linear8,
-              ),
-            ),
-          ),
-          child: Center(
-            child: Text(
-              event,
-              style: StyleConstants.buttonText,
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return values;
-  }
+  // List<Widget> _buildChainEventsTiles(ChainMetadata chainMetadata) {
+  //   final List<Widget> values = [];
+  //   // Add Methods
+  //   for (final String event in getChainEvents(chainMetadata.type)) {
+  //     values.add(
+  //       Container(
+  //         width: double.infinity,
+  //         height: StyleConstants.linear48,
+  //         margin: const EdgeInsets.symmetric(
+  //           vertical: StyleConstants.linear8,
+  //         ),
+  //         decoration: BoxDecoration(
+  //           border: Border.all(
+  //             color: chainMetadata.color,
+  //           ),
+  //           borderRadius: const BorderRadius.all(
+  //             Radius.circular(
+  //               StyleConstants.linear8,
+  //             ),
+  //           ),
+  //         ),
+  //         child: Center(
+  //           child: Text(
+  //             event,
+  //             style: StyleConstants.buttonText,
+  //             textAlign: TextAlign.center,
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   }
+  //
+  //   return values;
+  // }
 
   Future<dynamic> callChainMethod(
     ChainType type,

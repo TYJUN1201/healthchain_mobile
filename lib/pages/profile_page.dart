@@ -41,6 +41,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
   @override
   void initState() {
     _activeSessions = widget.web3App.getActiveSessions();
+
     _sessionData = _activeSessions[_activeSessions.keys.toList().first];
     userMetamaskAddress = NamespaceUtils.getAccount(
         _sessionData!.namespaces.values.first.accounts.first);
@@ -52,22 +53,30 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 
   Future<void> fetchCID(String address) async {
     try {
+      allFiles = [];
       StorageContract storageContract = StorageContract(
         EthereumAddress.fromHex('0xDB5332457aed22aB904212c2B8b40C18e6937440'),
         "http://10.0.2.2:8545",
       );
-      List<UserFile> result =
-          await storageContract.callContractFunction(address, "getAll");
+
+      List<dynamic> result =
+          await storageContract.callContractFunction(address, "getAll", []);
+
+      for (var fileDataList in result[0]) {
+        if (fileDataList is List<dynamic> && fileDataList.isNotEmpty) {
+          String ipfsHash = fileDataList[0].toString();
+          allFiles.add(UserFile(ipfsHash: ipfsHash));
+        }
+      }
 
       // Extract IPFS hashes from the result
-      List<String> ipfsHashes = result.map((file) => file.ipfsHash).toList();
+      List<String> ipfsHashes = allFiles.map((file) => file.ipfsHash).toList();
 
       // Fetch file types based on IPFS hashes
       List<String> fileTypes = await getFileTypes(ipfsHashes);
 
       // Update the state with the retrieved files and their types
       setState(() {
-        allFiles = result;
         for (int i = 0; i < allFiles.length; i++) {
           allFiles[i].fileType = fileTypes[i];
         }
@@ -119,7 +128,6 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
             icon: Icon(Icons.refresh),
             onPressed: () {
               // Trigger the loadFiles method when the refresh button is pressed
-              print('address: $userMetamaskAddress');
               fetchCID(userMetamaskAddress);
             },
           ),

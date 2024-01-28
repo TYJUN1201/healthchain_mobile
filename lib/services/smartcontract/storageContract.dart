@@ -34,32 +34,22 @@ class StorageContract {
     }
   }
 
-  Future<List<UserFile>> callContractFunction(String address, String functionName) async {
+  Future<dynamic> callContractFunction(String address, String functionName, List<dynamic> params) async {
     try {
-      print('Contract Address: $contractAddress');
       await _initialize(contractAddress, blockchainUrl);
-
       final EthereumAddress sender = EthereumAddress.fromHex(address);
       final result = await ethClient.call(
         sender: sender,
         contract: contract,
         function: contract.function(functionName),
-        params: [],
+        params: params,
       );
 
-      List<UserFile> allFiles = [];
-      for (var fileDataList in result[0]) {
-        if (fileDataList is List<dynamic> && fileDataList.isNotEmpty) {
-          String ipfsHash = fileDataList[0].toString();
-          allFiles.add(UserFile(ipfsHash: ipfsHash));
-        }
-      }
-
-      return allFiles;
+      return result;
     } catch (e) {
       // Handle the exception here
       print('Error occurred: $e');
-      return [];
+      return null;
     }
   }
 }
