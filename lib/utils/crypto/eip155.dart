@@ -1,7 +1,14 @@
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:desnet/models/eth/ethereum_transaction.dart';
 import 'package:desnet/utils/test_data.dart';
 import 'package:desnet/services/smartcontract/storageContract.dart';
+
+import 'dart:convert';
+import 'package:desnet/pages/profile_page.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 
 enum EIP155Methods {
   // personalSign,
@@ -62,7 +69,7 @@ class EIP155 {
     required EIP155Methods method,
     required String chainId,
     required String address,
-  }) {
+  }) async {
     switch (method) {
       // case EIP155Methods.personalSign:
       //   return personalSign(
@@ -100,30 +107,48 @@ class EIP155 {
       //     ),
       //   );
       case EIP155Methods.ethSendTransaction:
-        StorageContract storageContract = StorageContract(
-          EthereumAddress.fromHex('0xDB5332457aed22aB904212c2B8b40C18e6937440'),
-          "http://10.0.2.2:8545",
+        final contractAddress = '0xDB5332457aed22aB904212c2B8b40C18e6937440';
+        final userAddress = '0xd2415d678954c68e5132B3b73C7f327EA7adbb20';
+        final fileCID = 'QmX5TodM66Djvp7a9TPxUeUBzt2DfPU8hb2Q3UrYw6VeZY';
+
+        DeployedContract contract = DeployedContract(
+            ContractAbi.fromJson(
+                jsonEncode(jsonDecode(await rootBundle
+                    .loadString("assets/json/Storage.json"))["abi"]),
+                'Storage'),
+            EthereumAddress.fromHex(
+                contractAddress));
+
+        final ContractFunction contractFunction = contract.function('store');
+
+        final Transaction tx = Transaction.callContract(
+          contract: contract,
+          function: contractFunction,
+          parameters: [
+            fileCID
+          ],
         );
 
-        storageContract.ethClient.sendTransaction(Credentials, transaction)
+        // Map<String, dynamic> tJson = {
+        //   'from': userAddress ?? tx.from?.hex,
+        //   'to': tx.to?.hex,
+        //   'gas': tx.maxGas != null ? 'Ox${tx.maxGas!.toRadixString(16)}' : null,
+        //   'gasPrice': '0x${tx.gasPrice?.getInWei.toRadixString(16) ?? '0'}',
+        //   'value': '0x${tx.value?.getInWei.toRadixString(16) ?? '0'}',
+        //   'data': tx.data != null ? bytesToHex(tx.data!) : null,
+        //   'nonce': tx.nonce,
+        // };
 
-        ContractFunction contractFunction = storageContract.contract.function('store');
-        print(contractFunction.parameters);
-        final storeData = storageContract.callContractFunction(
-            '0x218164Ba1BdDBABB4867EbFd8e29e9c7642a5621', "Store", [
-          '0x131a06800000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002e516d50674d6878677261416d636e454266516e7879714c44776d4b416178424d6d7464476a6e7261614d7062664e000000000000000000000000000000000000'
-        ]);
-        //print(contractFunction.encodeCall(['0x131a06800000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002e516d50674d6878677261416d636e454266516e7879714c44776d4b416178424d6d7464476a6e7261614d7062664e000000000000000000000000000000000000']).toString());
         return ethSendTransaction(
           web3App: web3App,
           topic: topic,
           chainId: chainId,
-          transaction: EthereumTransaction(
-            from: '0x218164Ba1BdDBABB4867EbFd8e29e9c7642a5621', //userAddress
-            to: '0xDB5332457aed22aB904212c2B8b40C18e6937440', //contractAddress
-            value: '0x001', //
-            data: '',
-                //'0x131a06800000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002e516d50674d6878677261416d636e454266516e7879714c44776d4b416178424d6d7464476a6e7261614d7062664e000000000000000000000000000000000000', //contract store function abi
+          transaction:
+          EthereumTransaction(
+            from: userAddress,
+            to: contractAddress,
+            value: '0x${tx.value?.getInWei.toRadixString(16) ?? '0'}',
+            data: tx.data != null ? bytesToHex(tx.data!) : null,
           ),
         );
     }
