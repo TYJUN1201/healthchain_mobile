@@ -11,6 +11,7 @@ import 'package:desnet/models/page_data.dart';
 import 'package:desnet/pages/auth_page.dart';
 import 'package:desnet/pages/connect_page.dart';
 import 'package:desnet/pages/pairings_page.dart';
+import 'package:desnet/pages/uploadFileToIPFS.dart';
 import 'package:desnet/pages/sessions_page.dart';
 import 'package:desnet/utils/constants.dart';
 import 'package:desnet/utils/crypto/chain_data.dart';
@@ -203,9 +204,9 @@ class _MyHomePageState extends State<MyHomePage> {
           icon: Icons.confirmation_number_outlined,
         ),
         PageData(
-          page: AuthPage(web3App: _web3App!),
-          title: StringConstants.authPageTitle,
-          icon: Icons.lock,
+          page: UploadFilePage(web3App: _web3App!),
+          title: 'Upload File',
+          icon: Icons.file_upload,
         ),
         PageData(
           page: PatientProfilePage(web3App: _web3App!),

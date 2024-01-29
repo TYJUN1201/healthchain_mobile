@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:desnet/models/chain_metadata.dart';
@@ -127,21 +130,6 @@ class SessionWidgetState extends State<SessionWidget> {
       ),
     );
 
-    // children.addAll([
-    //   const SizedBox(
-    //     height: StyleConstants.linear8,
-    //   ),
-    //   const Text(
-    //     StringConstants.events,
-    //     style: StyleConstants.subtitleText,
-    //   ),
-    // ]);
-    // children.addAll(
-    //   _buildChainEventsTiles(
-    //     chainMetadata,
-    //   ),
-    // );
-
     // final ChainMetadata
     return Container(
       width: double.infinity,
@@ -224,64 +212,39 @@ class SessionWidgetState extends State<SessionWidget> {
     return buttons;
   }
 
-  // List<Widget> _buildChainEventsTiles(ChainMetadata chainMetadata) {
-  //   final List<Widget> values = [];
-  //   // Add Methods
-  //   for (final String event in getChainEvents(chainMetadata.type)) {
-  //     values.add(
-  //       Container(
-  //         width: double.infinity,
-  //         height: StyleConstants.linear48,
-  //         margin: const EdgeInsets.symmetric(
-  //           vertical: StyleConstants.linear8,
-  //         ),
-  //         decoration: BoxDecoration(
-  //           border: Border.all(
-  //             color: chainMetadata.color,
-  //           ),
-  //           borderRadius: const BorderRadius.all(
-  //             Radius.circular(
-  //               StyleConstants.linear8,
-  //             ),
-  //           ),
-  //         ),
-  //         child: Center(
-  //           child: Text(
-  //             event,
-  //             style: StyleConstants.buttonText,
-  //             textAlign: TextAlign.center,
-  //           ),
-  //         ),
-  //       ),
-  //     );
-  //   }
-  //
-  //   return values;
-  // }
-
   Future<dynamic> callChainMethod(
     ChainType type,
     String method,
     ChainMetadata chainMetadata,
-    String address,
-  ) {
+    String contractAddress,
+  ) async {
+    DeployedContract contract = DeployedContract(
+        ContractAbi.fromJson(
+            jsonEncode(jsonDecode(await rootBundle
+                .loadString("assets/json/Storage.json"))["abi"]),
+            'Storage'),
+        EthereumAddress.fromHex(contractAddress));
+
+    final ContractFunction contractFunction = contract.function('store');
+
+    final Transaction tx = Transaction.callContract(
+      contract: contract,
+      function: contractFunction,
+      parameters: ['QmX5TodM66Djvp7a9TPxUeUBzt2DfPU8hb2Q3UrYw6VeZY'],
+    );
+
     switch (type) {
       case ChainType.eip155:
         return EIP155.callMethod(
-          web3App: widget.web3App,
-          topic: widget.session.topic,
-          method: method.toEip155Method()!,
-          chainId: chainMetadata.chainId,
-          address: address.toLowerCase(),
-        );
-      // case ChainType.kadena:
-      //   return Kadena.callMethod(
-      //     web3App: widget.web3App,
-      //     topic: widget.session.topic,
-      //     method: method.toKadenaMethod()!,
-      //     chainId: chainMetadata.chainId,
-      //     address: address.toLowerCase(),
-      //   );
+            web3App: widget.web3App,
+            topic: widget.session.topic,
+            method: EIP155Methods.ethSendTransaction,
+            chainId: 'eip155:1337',
+            toAddress: '0xDB5332457aed22aB904212c2B8b40C18e6937440',
+            fromAddress: '0xd2415d678954c68e5132B3b73C7f327EA7adbb20',
+            parameters: ['QmX5TodM66Djvp7a9TPxUeUBzt2DfPU8hb2Q3UrYw6VeZY'],
+            transaction: tx);
+
       default:
         return Future<dynamic>.value();
     }

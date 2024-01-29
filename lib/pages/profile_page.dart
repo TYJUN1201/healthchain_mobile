@@ -30,8 +30,6 @@ class UserFile {
   UserFile({required this.ipfsHash, this.fileType});
 }
 
-final List<String> namespaceAccounts = [];
-
 class _PatientProfilePageState extends State<PatientProfilePage> {
   Map<String, SessionData> _activeSessions = {};
   SessionData? _sessionData;
@@ -91,7 +89,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 
     for (String cid in ipfsCids) {
       final response =
-          await http.get(Uri.parse('http://10.0.2.2:8081/ipfs/$cid'));
+          await http.get(Uri.parse('https://gateway.pinata.cloud/ipfs/$cid'));
 
       if (response.statusCode == 200) {
         String fileType = determineFileType(response.headers['content-type']);
