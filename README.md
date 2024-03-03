@@ -1,4 +1,4 @@
-# healthchain_mobile
+# healthchain
 
 A new Flutter project.
 

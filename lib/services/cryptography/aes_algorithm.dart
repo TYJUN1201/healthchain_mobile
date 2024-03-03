@@ -1,49 +1,49 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:cryptography/cryptography.dart';
-import 'package:desnet/services/cryptography/box_encryption.dart';
 
 // AES Algorithms
 class AESEncryption {
   // AES-CBC with 256 bit keys and HMAC-SHA256 authentication.
-  final algorithm = AesCbc.with256bits(
+  static final algorithm = AesCbc.with256bits(
     macAlgorithm: Hmac.sha256(),
   );
 
-  late SecretBox secretBox;
-  @override
-  String toString() {
-    return "{'Ciphertext':'${secretBox.cipherText}','Nonce':'${secretBox.nonce}','MAC':'${secretBox.mac.bytes}'}";
-  }
-
-  Future<String> encryptAES(String message) async {
-    // Generate secret key
+  static Future<List<dynamic>> encryptAES(String message) async {
+    // Generate random secret key
     final secretKey = await algorithm.newSecretKey();
 
     // Encrypt
-    secretBox = await algorithm.encrypt(
+    SecretBox secretBox = await algorithm.encrypt(
       message.codeUnits,
       secretKey: secretKey,
     );
 
-    // print('Nonce: ${secretBox.nonce}');
-    // print('Ciphertext: ${secretBox.cipherText}');
-    // print('MAC: ${secretBox.mac.bytes}');
+    // print('AES encryption');
+    // print('Nonce: ${base64Encode(secretBox.nonce)}');
+    // print('Ciphertext: ${base64Encode(secretBox.cipherText)}');
+    // print('MAC: ${base64Encode(secretBox.mac.bytes)}');
+    // print('AES secret key: ${base64Encode(await secretKey.extractBytes())}');
 
-    return BoxEncryption.encryptSecretKey(await secretKey.extractBytes());
+    return ['{"Ciphertext":"${base64Encode(secretBox.cipherText)}","Nonce":"${base64Encode(secretBox.nonce)}","MAC":"${base64Encode(secretBox.mac.bytes)}"}', base64Encode(await secretKey.extractBytes())];
   }
 
-  Future<String> decryptAES(SecretBox secretBox, String encryptedSecretKey) async {
-    // Call Metamask API: eth_decrypt(encryptedMessage, address)
-    String decryptedSecretKeyBytesList = '';
+  static Future<String> decryptAES(Map<dynamic, dynamic>? secretBoxJson, List<int> secretKey) async {
+    // Convert JSON String to SecretBox
+    SecretBox secretBox = SecretBox(
+      Uint8List.fromList(base64Decode(secretBoxJson?['Ciphertext'] ?? '')),
+      nonce: Uint8List.fromList(base64Decode(secretBoxJson?['Nonce'] ?? '')),
+      mac: Mac(base64Decode(secretBoxJson?['MAC'] ?? '')),
+    );
 
+    print(base64Encode(secretBox.cipherText));
+    print(secretBox.nonce);
+    print(secretBox.mac);
     // Decrypt
     final decryptedBytes = await algorithm.decrypt(
       secretBox,
-      secretKey: SecretKey(utf8.encode(decryptedSecretKeyBytesList)), // Convert String to SecretKey
+      secretKey: SecretKey(secretKey),
     );
-
-    return utf8.decode(decryptedBytes); // return AES Key
+    return utf8.decode(decryptedBytes);
   }
-
-
 }

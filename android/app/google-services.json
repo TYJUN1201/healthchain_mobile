@@ -1,0 +1,97 @@
+{
+  "project_info": {
+    "project_number": "513210187862",
+    "firebase_url": "https://medicalchain-20556-default-rtdb.firebaseio.com",
+    "project_id": "medicalchain-20556",
+    "storage_bucket": "medicalchain-20556.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513210187862:android:41b43c40ac6ff513757bf7",
+        "android_client_info": {
+          "package_name": "com.company.healthchain.healthchain"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513210187862-tlteuu9u2vfbtte3jg100k8i1oaoumgq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.company.healthchain.healthchain",
+            "certificate_hash": "e10c322977e831746a43d03e4b955083aabaacc5"
+          }
+        },
+        {
+          "client_id": "513210187862-cka4lpnk2hc2fq7sfeimels145ao7l0r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzd7lft7WDnie4Vbrng80WkfGEDq5ks6s"
+        },
+        {
+          "current_key": "AIzaSyBqwX0oEGwiRCSR81AlbmJMuf4q_54CdzU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513210187862-cka4lpnk2hc2fq7sfeimels145ao7l0r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "513210187862-jhg1tn2ds2va2nlmauo7tgs1hrqlk5n3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.company.healthchain.healthchain.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513210187862:android:2a5670a971768fe5757bf7",
+        "android_client_info": {
+          "package_name": "com.company.medicalchain"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513210187862-cka4lpnk2hc2fq7sfeimels145ao7l0r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzd7lft7WDnie4Vbrng80WkfGEDq5ks6s"
+        },
+        {
+          "current_key": "AIzaSyBqwX0oEGwiRCSR81AlbmJMuf4q_54CdzU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513210187862-cka4lpnk2hc2fq7sfeimels145ao7l0r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "513210187862-jhg1tn2ds2va2nlmauo7tgs1hrqlk5n3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.company.healthchain.healthchain.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
