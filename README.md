@@ -1,6 +1,5 @@
-# healthchain
-
-A new Flutter project.
+# HealthChain
+A decentralized Electronic Medical Records (EMRs) management system using Ethereum Solidity Smart Contract, Interplanetary File System (IPFS) and Cryptography for privacy.
 
 ## Getting Started
 
